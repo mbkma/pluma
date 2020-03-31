@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cppcheck - HTML report - pluma</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
+    <script language="javascript">
+      function getStyle(el,styleProp) {
+        if (el.currentStyle)
+          var y = el.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+          var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+        return y;
+      }
+      function toggle() {
+        var el = this.expandable_content;
+        var mark = this.expandable_marker;
+        if (el.style.display == "block") {
+          el.style.display = "none";
+          mark.innerHTML = "[+]";
+        } else {
+          el.style.display = "block";
+          mark.innerHTML = "[-]";
+        }
+      }
+      function init_expandables() {
+        var elts = document.getElementsByClassName("expandable");
+        for (var i = 0; i < elts.length; i++) {
+          var el = elts[i];
+          var clickable = el.getElementsByTagName("span")[0];
+          var marker = clickable.getElementsByClassName("marker")[0];
+          var content = el.getElementsByClassName("content")[0];
+          var width = clickable.clientWidth - parseInt(getStyle(content, "padding-left")) - parseInt(getStyle(content, "padding-right"));
+          content.style.width = width + "px";
+          clickable.expandable_content = content;
+          clickable.expandable_marker = marker;
+          clickable.onclick = toggle;
+        }
+      }
+      function set_class_display(c, st) {
+        var elements = document.querySelectorAll('.' + c),
+            len = elements.length;
+        for (i = 0; i < len; i++) {
+            elements[i].style.display = st;
+        }
+      }
+      function toggle_class_visibility(id) {
+        var box = document.getElementById(id);
+        set_class_display(id, box.checked ? '' : 'none');
+      }
+      function toggle_all(){
+        var elts = document.getElementsByTagName("input");
+        for (var i = 1; i < elts.length; i++) {           
+          var el = elts[i];
+          el.checked ? el.checked=false : el.checked=true;
+          toggle_class_visibility(el.id);        
+        }            
+      }
+
+    </script>
+  </head>
+  <body onload="init_expandables()">
+      <div id="header">
+        <h1>Cppcheck report - pluma: Statistics </h1>
+      </div>
+      <div id="menu_index">
+       <p id="filename"><a href="index.html">Back to summary</a> </p>
+
+      </div>
+      <div id="content_index">
+<p>Top 10 files for error severity, total findings: 11</br>
+&#160;&#160;&#160;2&#160;<a href="30.html">  pluma/pluma-utils.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="41.html">  tools/plugin_template/pluma-plugin.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="40.html">  tests/smart-converter.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="39.html">  tests/document-saver.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="38.html">  tests/document-output-stream.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="37.html">  tests/document-loader.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="36.html">  tests/document-input-stream.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="25.html">  pluma/pluma-plugins-engine.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="18.html">  pluma/pluma-document.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="7.html">  plugins/spell/pluma-automatic-spell-checker.c</a></br>
+</p>
+<p>Top 10 files for warning severity, total findings: 44</br>
+&#160;&#160;&#160;14&#160;<a href="9.html">  plugins/spell/pluma-spell-plugin.c</a></br>
+&#160;&#160;&#160;14&#160;<a href="6.html">  plugins/sort/pluma-sort-plugin.c</a></br>
+&#160;&#160;&#160;4&#160;&#160;<a href="8.html">  plugins/spell/pluma-spell-checker-dialog.c</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="30.html">  pluma/pluma-utils.c</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="24.html">  pluma/pluma-panel.c</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="35.html">  pluma/smclient/eggsmclient-xsmp.c</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="28.html">  pluma/pluma-session.c</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="23.html">  pluma/pluma-metadata-manager.c</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="20.html">  pluma/pluma-file-chooser-dialog.c</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="16.html">  pluma/pluma-commands-file.c</a></br>
+</p>
+<p>Top 10 files for portability severity, total findings: 9</br>
+&#160;&#160;&#160;6&#160;<a href="35.html">  pluma/smclient/eggsmclient-xsmp.c</a></br>
+&#160;&#160;&#160;2&#160;<a href="16.html">  pluma/pluma-commands-file.c</a></br>
+&#160;&#160;&#160;1&#160;<a href="14.html">  pluma/dialogs/pluma-preferences-dialog.c</a></br>
+</p>
+<p>Top 10 files for style severity, total findings: 86</br>
+&#160;&#160;&#160;21&#160;<a href="3.html">  plugins/filebrowser/pluma-file-browser-store.c</a></br>
+&#160;&#160;&#160;11&#160;<a href="5.html">  plugins/filebrowser/pluma-file-browser-widget.c</a></br>
+&#160;&#160;&#160;7&#160;&#160;<a href="22.html">  pluma/pluma-io-error-message-area.c</a></br>
+&#160;&#160;&#160;6&#160;&#160;<a href="34.html">  pluma/smclient/eggdesktopfile.c</a></br>
+&#160;&#160;&#160;5&#160;&#160;<a href="30.html">  pluma/pluma-utils.c</a></br>
+&#160;&#160;&#160;4&#160;&#160;<a href="2.html">  plugins/filebrowser/pluma-file-browser-plugin.c</a></br>
+&#160;&#160;&#160;3&#160;&#160;<a href="35.html">  pluma/smclient/eggsmclient-xsmp.c</a></br>
+&#160;&#160;&#160;3&#160;&#160;<a href="29.html">  pluma/pluma-tab.c</a></br>
+&#160;&#160;&#160;3&#160;&#160;<a href="10.html">  plugins/taglist/pluma-taglist-plugin-panel.c</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="33.html">  pluma/pluma.c</a></br>
+</p>
+<p>Top 10 files for information severity, total findings: 1</br>
+&#160;&#160;&#160;1&#160;<a href="41.html">  tools/plugin_template/pluma-plugin.c</a></br>
+</p>
+
+      </div>
+      <div id="footer">
+        <p>
+         Cppcheck 1.90 - a tool for static C/C++ code analysis</br>
+         </br>
+         Internet: <a href="http://cppcheck.net">http://cppcheck.net</a></br>
+         IRC: <a href="irc://irc.freenode.net/cppcheck">irc://irc.freenode.net/cppcheck</a></br>
+        </p>
+      </div>
+  </body>
+</html>
