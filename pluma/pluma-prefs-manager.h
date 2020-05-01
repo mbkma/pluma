@@ -82,6 +82,8 @@
 
 #define GPM_BOTTOM_PANEL_VISIBLE	"bottom-panel-visible"
 
+#define GPM_DISPLAY_OVERVIEW_MAP	"display-overview-map"
+
 #define GPM_MAX_RECENTS			"max-recents"
 
 /* Print */

@@ -794,7 +794,7 @@ pluma_override_font (const gchar          *item,
 		     GtkWidget            *widget,
 		     PangoFontDescription *font)
 {
-	static GtkCssProvider *provider = NULL; /*We need to keep this as long as Pluma is running*/
+	GtkCssProvider *provider = NULL;
 	gchar          *prov_str;
 	gchar          *css;
 	gchar          *family;
@@ -825,9 +825,9 @@ pluma_override_font (const gchar          *item,
 				  "changed::" "font-name",
 				  G_CALLBACK (system_font_changed_cb), NULL);
 
-		gtk_style_context_add_provider_for_screen (gtk_widget_get_screen (widget),
-							   GTK_STYLE_PROVIDER (provider),
-							   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+		gtk_style_context_add_provider (gtk_widget_get_style_context (widget),
+						GTK_STYLE_PROVIDER (provider),
+						GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	}
 
 	prov_str = gtk_css_provider_to_string (provider);

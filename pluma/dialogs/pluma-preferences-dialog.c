@@ -82,6 +82,8 @@ struct _PlumaPreferencesDialogPrivate
 {
 	GtkWidget	*notebook;
 
+	GSettings	*editor;
+
 	/* Font */
 	GtkWidget	*default_font_checkbutton;
 	GtkWidget	*font_button;
@@ -129,6 +131,9 @@ struct _PlumaPreferencesDialogPrivate
 	/* Highlight matching bracket */
 	GtkWidget	*bracket_matching_checkbutton;
 
+	/* Display overview map */
+	GtkWidget	*display_overview_map_checkbutton;
+
 	/* Right margin */
 	GtkWidget	*right_margin_checkbutton;
 	GtkWidget	*right_margin_position_spinbutton;
@@ -141,10 +146,22 @@ struct _PlumaPreferencesDialogPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (PlumaPreferencesDialog, pluma_preferences_dialog, GTK_TYPE_DIALOG)
 
+static void
+pluma_preferences_dialog_dispose (GObject *object)
+{
+	PlumaPreferencesDialog *dlg = PLUMA_PREFERENCES_DIALOG (object);
+
+	g_clear_object (&dlg->priv->editor);
+
+	G_OBJECT_CLASS (pluma_preferences_dialog_parent_class)->dispose (object);
+}
 
 static void
 pluma_preferences_dialog_class_init (PlumaPreferencesDialogClass *klass)
 {
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->dispose = pluma_preferences_dialog_dispose;
 }
 
 static void
@@ -639,6 +656,12 @@ setup_view_page (PlumaPreferencesDialog *dlg)
 	gtk_widget_set_sensitive (dlg->priv->right_margin_position_hbox,
 				  display_right_margin &&
 				  pluma_prefs_manager_right_margin_position_can_set ());
+
+	g_settings_bind (dlg->priv->editor,
+			 GPM_DISPLAY_OVERVIEW_MAP,
+			 dlg->priv->display_overview_map_checkbutton,
+			 "active",
+			 G_SETTINGS_BIND_GET | G_SETTINGS_BIND_SET);
 
 	/* Connect signals */
 	g_signal_connect (dlg->priv->display_line_numbers_checkbutton,
@@ -1288,6 +1311,8 @@ pluma_preferences_dialog_init (PlumaPreferencesDialog *dlg)
 
 	dlg->priv = pluma_preferences_dialog_get_instance_private (dlg);
 
+	dlg->priv->editor = g_settings_new ("org.mate.pluma");
+
 	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Close"), "window-close", GTK_RESPONSE_CLOSE);
 	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Help"), "help-browser", GTK_RESPONSE_HELP);
 
@@ -1314,6 +1339,7 @@ pluma_preferences_dialog_init (PlumaPreferencesDialog *dlg)
 		"display_line_numbers_checkbutton", &dlg->priv->display_line_numbers_checkbutton,
 		"highlight_current_line_checkbutton", &dlg->priv->highlight_current_line_checkbutton,
 		"bracket_matching_checkbutton", &dlg->priv->bracket_matching_checkbutton,
+		"display_overview_map_checkbutton", &dlg->priv->display_overview_map_checkbutton,
 		"wrap_text_checkbutton", &dlg->priv->wrap_text_checkbutton,
 		"split_checkbutton", &dlg->priv->split_checkbutton,
 

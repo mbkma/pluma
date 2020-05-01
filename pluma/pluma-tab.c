@@ -52,8 +52,12 @@ struct _PlumaTabPrivate
 {
 	PlumaTabState	        state;
 
+	GSettings	       *editor_settings;
+
+	GtkWidget	       *overlay;
 	GtkWidget	       *view;
 	GtkWidget	       *view_scrolled_window;
+	GtkWidget	       *view_map_frame;
 
 	GtkWidget	       *message_area;
 	GtkWidget	       *print_preview;
@@ -166,6 +170,16 @@ remove_auto_save_timeout (PlumaTab *tab)
 }
 
 static void
+pluma_tab_dispose (GObject *object)
+{
+	PlumaTab *tab = PLUMA_TAB (object);
+
+	g_clear_object (&tab->priv->editor_settings);
+
+	G_OBJECT_CLASS (pluma_tab_parent_class)->dispose (object);
+}
+
+static void
 pluma_tab_get_property (GObject    *object,
 		        guint       prop_id,
 		        GValue     *value,
@@ -249,6 +263,7 @@ pluma_tab_class_init (PlumaTabClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = pluma_tab_finalize;
+	object_class->dispose = pluma_tab_dispose;
 	object_class->get_property = pluma_tab_get_property;
 	object_class->set_property = pluma_tab_set_property;
 
@@ -398,11 +413,15 @@ pluma_tab_set_state (PlumaTab      *tab,
 	    (state == PLUMA_TAB_STATE_SHOWING_PRINT_PREVIEW))
 	{
 		gtk_widget_hide (tab->priv->view_scrolled_window);
+		gtk_widget_hide (tab->priv->overlay);
 	}
 	else
 	{
 		if (tab->priv->print_preview == NULL)
+		{
 			gtk_widget_show (tab->priv->view_scrolled_window);
+			gtk_widget_show (tab->priv->overlay);
+		}
 	}
 
 	set_cursor_according_to_state (GTK_TEXT_VIEW (tab->priv->view),
@@ -1481,6 +1500,8 @@ tab_mount_operation_factory (PlumaDocument *doc,
 static void
 pluma_tab_init (PlumaTab *tab)
 {
+	GtkWidget *hbox;
+	GtkWidget *map;
 	GtkWidget *sw;
 	PlumaDocument *doc;
 	PlumaLockdownMask lockdown;
@@ -1529,11 +1550,40 @@ pluma_tab_init (PlumaTab *tab)
 	gtk_widget_show (tab->priv->view);
 	g_object_set_data (G_OBJECT (tab->priv->view), PLUMA_TAB_KEY, tab);
 
-	gtk_box_pack_end (GTK_BOX (tab), sw, TRUE, TRUE, 0);
 	gtk_container_add (GTK_CONTAINER (sw), tab->priv->view);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
 					     GTK_SHADOW_IN);
 	gtk_widget_show (sw);
+
+	/* Create the overlay */
+	tab->priv->overlay = gtk_overlay_new ();
+
+	tab->priv->view_map_frame = gtk_frame_new (NULL);
+	map = gtk_source_map_new();
+
+ 	gtk_source_map_set_view (GTK_SOURCE_MAP(map), GTK_SOURCE_VIEW(tab->priv->view));
+	gtk_container_add (GTK_CONTAINER(tab->priv->view_map_frame), map);
+	gtk_widget_show (tab->priv->view_map_frame);
+
+	/* Start packing */
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+
+	gtk_box_pack_start (GTK_BOX (hbox), sw, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), tab->priv->view_map_frame, FALSE, FALSE, 0);
+
+	gtk_box_pack_end (GTK_BOX (tab), tab->priv->overlay, TRUE, TRUE, 0);
+
+	gtk_overlay_add_overlay (GTK_OVERLAY(tab->priv->overlay), hbox);
+
+	gtk_widget_show (hbox);
+	gtk_widget_show (tab->priv->overlay);
+
+	tab->priv->editor_settings = g_settings_new ("org.mate.pluma");
+	g_settings_bind (tab->priv->editor_settings,
+	                 GPM_DISPLAY_OVERVIEW_MAP,
+	                 tab->priv->view_map_frame,
+	                 "visible",
+	                 G_SETTINGS_BIND_GET | G_SETTINGS_BIND_NO_SENSITIVITY);
 
 	g_signal_connect (doc,
 			  "notify::uri",
