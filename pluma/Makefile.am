@@ -65,7 +65,7 @@ NOINST_H_FILES =			\
 
 INST_H_FILES =				\
 	pluma-app.h			\
-	pluma-app-activatable.h			\
+	pluma-app-activatable.h		\
 	pluma-commands.h		\
 	pluma-debug.h			\
 	pluma-document.h 		\
@@ -83,6 +83,7 @@ INST_H_FILES =				\
 	pluma-tab.h 			\
 	pluma-utils.h 			\
 	pluma-view.h 			\
+	pluma-view-activatable.h	\
 	pluma-window.h
 
 if !ENABLE_GVFS_METADATA
@@ -139,6 +140,7 @@ libpluma_c_files = 			\
 	pluma-tab-label.c		\
 	pluma-utils.c 			\
 	pluma-view.c 			\
+	pluma-view-activatable.c	\
 	pluma-window.c			\
 	plumatextregion.c
 

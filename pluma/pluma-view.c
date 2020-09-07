@@ -39,10 +39,13 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <libpeas/peas-extension-set.h>
 
 #include <glib/gi18n.h>
 
 #include "pluma-view.h"
+#include "pluma-view-activatable.h"
+#include "pluma-plugins-engine.h"
 #include "pluma-debug.h"
 #include "pluma-marshal.h"
 #include "pluma-utils.h"
@@ -98,6 +101,8 @@ struct _PlumaViewPrivate
 	gboolean     disable_popdown;
 
 	GtkTextBuffer *current_buffer;
+
+	PeasExtensionSet *extensions;
 };
 
 /* The search entry completion is shared among all the views */
@@ -364,6 +369,24 @@ current_buffer_removed (PlumaView *view)
 }
 
 static void
+extension_added (PeasExtensionSet *extensions,
+		 PeasPluginInfo   *info,
+		 PeasExtension    *exten,
+		 PlumaView        *view)
+{
+	peas_extension_call (exten, "activate");
+}
+
+static void
+extension_removed (PeasExtensionSet *extensions,
+		   PeasPluginInfo   *info,
+		   PeasExtension    *exten,
+		   PlumaView        *view)
+{
+	peas_extension_call (exten, "deactivate");
+}
+
+static void
 on_notify_buffer_cb (PlumaView  *view,
 		     GParamSpec *arg1,
 		     gpointer    userdata)
@@ -389,6 +412,11 @@ on_notify_buffer_cb (PlumaView  *view,
 			  "search_highlight_updated",
 			  G_CALLBACK (search_highlight_updated_cb),
 			  view);
+
+	/* We only activate the extensions when the right buffer is set,
+	 * because most plugins will expect this behaviour, and we won't
+	 * change the buffer later anyway. */
+	peas_extension_set_call (view->priv->extensions, "activate");
 }
 
 #ifdef GTK_SOURCE_VERSION_3_24
@@ -569,6 +597,19 @@ pluma_view_init (PlumaView *view)
 	if (tl != NULL)
 		gtk_target_list_add_uri_targets (tl, TARGET_URI_LIST);
 
+	view->priv->extensions = peas_extension_set_new (PEAS_ENGINE (pluma_plugins_engine_get_default ()),
+							 PLUMA_TYPE_VIEW_ACTIVATABLE,
+							 "view", view,
+							 NULL);
+	g_signal_connect (view->priv->extensions,
+			  "extension-added",
+			  G_CALLBACK (extension_added),
+			  view);
+	g_signal_connect (view->priv->extensions,
+			  "extension-removed",
+			  G_CALLBACK (extension_removed),
+			  view);
+
 	/* Act on buffer change */
 	g_signal_connect (view,
 			  "notify::buffer",
@@ -594,6 +635,13 @@ pluma_view_dispose (GObject *object)
 			g_source_remove (view->priv->typeselect_flush_timeout);
 			view->priv->typeselect_flush_timeout = 0;
 		}
+	}
+
+	if (view->priv->extensions != NULL)
+	{
+		peas_extension_set_call (view->priv->extensions,
+					 "deactivate");
+		g_clear_object (&view->priv->extensions);
 	}
 
 	g_clear_object (&view->priv->editor_settings);
