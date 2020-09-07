@@ -41,7 +41,6 @@
 #include <gio/gio.h>
 #include <gtk/gtk.h>
 #include <gtksourceview/gtksource.h>
-#include <libpeas/peas-activatable.h>
 #include <libpeas/peas-extension-set.h>
 
 #include "pluma-ui.h"
@@ -57,6 +56,7 @@
 #include "pluma-panel.h"
 #include "pluma-documents-panel.h"
 #include "pluma-plugins-engine.h"
+#include "gedit-window-activatable.h"
 #include "pluma-enum-types.h"
 #include "pluma-dirs.h"
 #include "pluma-status-combo-box.h"
@@ -4115,7 +4115,7 @@ pluma_window_init (PlumaWindow *window)
 	pluma_debug_message (DEBUG_WINDOW, "Update plugins ui");
 
 	window->priv->extensions = peas_extension_set_new (PEAS_ENGINE (pluma_plugins_engine_get_default ()),
-	                                                   PEAS_TYPE_ACTIVATABLE, "object", window, NULL);
+	                                                   PLUMA_TYPE_WINDOW_ACTIVATABLE);
 
 	peas_extension_set_call (window->priv->extensions, "activate");
 
