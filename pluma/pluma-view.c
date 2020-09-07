@@ -639,9 +639,10 @@ pluma_view_dispose (GObject *object)
 
 	if (view->priv->extensions != NULL)
 	{
-		peas_extension_set_call (view->priv->extensions,
-					 "deactivate");
-		g_clear_object (&view->priv->extensions);
+		/* Note that unreffing the extensions will automatically remove
+		   all extensions which in turn will deactivate the extension */
+		g_object_unref (view->priv->extensions);
+		view->priv->extensions = NULL;
 	}
 
 	g_clear_object (&view->priv->editor_settings);

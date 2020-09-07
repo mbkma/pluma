@@ -86,6 +86,24 @@ show_version_and_quit (void)
 	exit (0);
 }
 
+#ifdef HAVE_INTROSPECTION
+static void
+setup_girepository (void)
+{
+	gchar *lib_dir;
+	gchar *typelib_dir;
+
+	lib_dir = pluma_dirs_get_pluma_lib_dir ();
+	typelib_dir = g_build_filename (lib_dir, "girepository-1.0", NULL);
+
+	g_irepository_prepend_search_path (typelib_dir);
+
+	g_free (typelib_dir);
+	g_free (lib_dir);
+}
+#endif
+
+
 static void
 list_encodings_and_quit (void)
 {
@@ -532,6 +550,7 @@ main (int argc, char *argv[])
 
 #ifdef HAVE_INTROSPECTION
 	g_option_context_add_group (context, g_irepository_get_option_group ());
+	setup_girepository ();
 #endif
 
 	if (!g_option_context_parse (context, &argc, &argv, &error))

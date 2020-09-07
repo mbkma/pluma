@@ -38,30 +38,23 @@
 
 G_DEFINE_INTERFACE(PlumaAppActivatable, pluma_app_activatable, G_TYPE_OBJECT)
 
-void
+static void
 pluma_app_activatable_default_init (PlumaAppActivatableInterface *iface)
 {
-	static gboolean initialized = FALSE;
-
-	if (!initialized)
-	{
-		/**
-		 * PlumaAppActivatable:app:
-		 *
-		 * The app property contains the pluma app for this
-		 * #PlumaAppActivatable instance.
-		 */
-		g_object_interface_install_property (iface,
-		                                     g_param_spec_object ("app",
-		                                                          "App",
-		                                                          "The pluma app",
-		                                                          PLUMA_TYPE_APP,
-		                                                          G_PARAM_READWRITE |
-		                                                          G_PARAM_CONSTRUCT_ONLY |
-		                                                          G_PARAM_STATIC_STRINGS));
-
-		initialized = TRUE;
-	}
+	/**
+	 * PlumaAppActivatable:app:
+	 *
+	 * The app property contains the pluma app for this
+	 * #PlumaAppActivatable instance.
+	 */
+	g_object_interface_install_property (iface,
+	                                     g_param_spec_object ("app",
+	                                                          "App",
+	                                                          "The pluma app",
+	                                                          PLUMA_TYPE_APP,
+	                                                          G_PARAM_READWRITE |
+	                                                          G_PARAM_CONSTRUCT_ONLY |
+	                                                          G_PARAM_STATIC_STRINGS));
 }
 
 /**

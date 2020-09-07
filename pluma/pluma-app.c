@@ -50,7 +50,6 @@
 #include "pluma-app-activatable.h"
 #include "pluma-plugins-engine.h"
 
-
 #define PLUMA_PAGE_SETUP_FILE		"pluma-page-setup"
 #define PLUMA_PRINT_SETTINGS_FILE	"pluma-print-settings"
 
@@ -102,11 +101,10 @@ pluma_app_dispose (GObject *object)
 
 	if (app->priv->extensions != NULL)
 	{
-		peas_extension_set_call (app->priv->extensions,
-					 "deactivate",
-					 app);
-
-		g_clear_object (&app->priv->extensions);
+		/* Note that unreffing the extensions will automatically remove
+		   all extensions which in turn will deactivate the extension */
+		g_object_unref (app->priv->extensions);
+		app->priv->extensions = NULL;
 	}
 
 	G_OBJECT_CLASS (pluma_app_parent_class)->dispose (object);

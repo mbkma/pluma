@@ -5,6 +5,8 @@ bin_PROGRAMS = pluma
 
 noinst_LTLIBRARIES = libpluma.la
 
+pkglib_LTLIBRARIES = libpluma-private.la
+
 AM_CPPFLAGS =								\
 	-I$(top_srcdir)							\
 	-I$(srcdir)							\
@@ -19,11 +21,20 @@ AM_CPPFLAGS =								\
 pluma_SOURCES = \
 	pluma.c
 
-pluma_LDADD = libpluma.la $(PLUMA_LIBS) $(LIBEGG_LIBS) $(INTROSPECTION_LIBS)
+pluma_LDADD =			\
+	libpluma.la	 	\
+	libpluma-private.la	\
+	$(PLUMA_LIBS)		\
+	$(LIBEGG_LIBS)		\
+	$(INTROSPECTION_LIBS)
 
 pluma_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
 
 libpluma_la_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
+
+libpluma_private_la_LIBADD = libpluma.la $(PLUMA_LIBS)
+
+libpluma_private_la_LDFLAGS = -avoid-version
 
 libpluma_la_LIBADD = \
 	dialogs/libdialogs.la		\
@@ -84,7 +95,8 @@ INST_H_FILES =				\
 	pluma-utils.h 			\
 	pluma-view.h 			\
 	pluma-view-activatable.h	\
-	pluma-window.h
+	pluma-window.h			\
+	pluma-window-activatable.h
 
 if !ENABLE_GVFS_METADATA
 INST_H_FILES += pluma-metadata-manager.h
@@ -95,9 +107,13 @@ headerdir = $(prefix)/include/pluma
 header_DATA = 				\
 	$(INST_H_FILES)
 
+libpluma_private_la_SOURCES =		\
+	pluma-app-activatable.c		\
+	pluma-view-activatable.c	\
+	pluma-window-activatable.c
+
 libpluma_c_files = 			\
 	pluma-app.c			\
-	pluma-app-activatable.c		\
 	pluma-close-button.c		\
 	pluma-commands-documents.c	\
 	pluma-commands-edit.c		\
@@ -140,7 +156,6 @@ libpluma_c_files = 			\
 	pluma-tab-label.c		\
 	pluma-utils.c 			\
 	pluma-view.c 			\
-	pluma-view-activatable.c	\
 	pluma-window.c			\
 	plumatextregion.c
 
@@ -204,10 +219,10 @@ Pluma_1_0_gir_VERSION = 1.0
 Pluma_1_0_gir_PROGRAM = $(builddir)/pluma
 Pluma_1_0_gir_NAMESPACE = Pluma
 
-girdir = $(datadir)/gir-1.0
+girdir = $(datadir)/pluma/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibdir = $(libdir)/girepository-1.0
+typelibdir = $(libdir)/pluma/girepository-1.0
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
